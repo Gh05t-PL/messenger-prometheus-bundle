@@ -1,0 +1,62 @@
+name: Packagist
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Use "create" for the first Packagist publication, then "update".
+        required: true
+        default: update
+        type: choice
+        options:
+          - update
+          - create
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish package metadata
+    runs-on: ubuntu-latest
+
+    env:
+      PACKAGE_REPOSITORY: ${{ github.server_url }}/${{ github.repository }}
+      PACKAGIST_USERNAME: ${{ secrets.PACKAGIST_USERNAME }}
+      PACKAGIST_TOKEN: ${{ secrets.PACKAGIST_TOKEN }}
+      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'update' }}
+
+    steps:
+      - name: Notify Packagist
+        run: |
+          set -euo pipefail
+
+          if [ -z "${PACKAGIST_USERNAME}" ] || [ -z "${PACKAGIST_TOKEN}" ]; then
+            echo "Missing PACKAGIST_USERNAME or PACKAGIST_TOKEN secret." >&2
+            exit 1
+          fi
+
+          case "${MODE}" in
+            create)
+              endpoint="https://packagist.org/api/create-package"
+              ;;
+            update)
+              endpoint="https://packagist.org/api/update-package"
+              ;;
+            *)
+              echo "Unsupported Packagist mode: ${MODE}" >&2
+              exit 1
+              ;;
+          esac
+
+          curl --fail-with-body \
+            --request POST \
+            --header "Content-Type: application/json" \
+            --header "Authorization: Bearer ${PACKAGIST_USERNAME}:${PACKAGIST_TOKEN}" \
+            --header "User-Agent: gh05tpl/messenger-prometheus-bundle GitHub Actions (${PACKAGE_REPOSITORY})" \
+            --data "{\"repository\":\"${PACKAGE_REPOSITORY}\"}" \
+            "${endpoint}"
+
