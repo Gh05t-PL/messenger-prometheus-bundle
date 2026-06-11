@@ -13,7 +13,6 @@ final class Gh05tPLMessengerPrometheusExtension extends Extension
 {
     public function load(array $configs, ContainerBuilder $container): void
     {
-        $justCheck = 'a';
         $loader = new PhpFileLoader(
             $container,
             new FileLocator(__DIR__ . '/../Resources/config')
