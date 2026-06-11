@@ -24,9 +24,21 @@ jobs:
           - '8.4'
           - '8.5'
     
-
     steps:
       - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate Composer config
+        run: composer validate --strict
+
+      - name: Cache Composer downloads
         uses: actions/cache@v4
         with:
           path: ~/.composer/cache/files
@@ -34,6 +46,7 @@ jobs:
           restore-keys: |
             composer-${{ runner.os }}-php-${{ matrix.php-version }}-
             composer-${{ runner.os }}-
+
 
       - name: Install dependencies
         run: composer update --no-interaction --no-progress --prefer-dist
