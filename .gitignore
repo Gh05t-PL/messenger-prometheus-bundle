@@ -1,0 +1,5 @@
+/.docker-cache/
+/.phpunit.cache/
+/vendor/
+/composer.lock
+
