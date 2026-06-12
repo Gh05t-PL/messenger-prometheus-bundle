@@ -6,6 +6,6 @@ namespace Gh05tPL\MessengerPrometheusBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-final class Gh05tPLMessengerPrometheusBundle extends Bundle
+final class MessengerPrometheusBundle extends Bundle
 {
 }
